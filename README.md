@@ -69,9 +69,9 @@ body {
 ### Output
 
 ```html
-<html amp="">
+<html amp>
   <head>
-    <style amp-custom="">body{background-color:#fff}</style>
+    <style amp-custom>body{background-color:#fff}</style>
   </head>
   <amp-img src="image.png" width="600" height="400"></amp-img>
 </html>

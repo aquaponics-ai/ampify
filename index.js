@@ -22,7 +22,9 @@ module.exports = async (html, options) => {
 
   const $ = cheerio.load(html, cheerioOptions);
 
-  const round = cheerioOptions.round ? numb => Math.round(numb / 5) * 5 : numb => numb;
+  const round = cheerioOptions.round
+    ? (numb) => Math.round(numb / 5) * 5
+    : (numb) => numb;
 
   /* Fetch images and CSS */
   const promises = [];
@@ -38,10 +40,13 @@ module.exports = async (html, options) => {
       // set a flag
       responses[src] = true;
       const imageUrl = element.attribs.src;
-      promises.push(axios.get(imageUrl, { responseType: 'arraybuffer' })
-        .then((response) => {
-          responses[src] = response;
-        }));
+      promises.push(
+        axios
+          .get(imageUrl, { responseType: 'arraybuffer' })
+          .then((response) => {
+            responses[src] = response;
+          })
+      );
     }
   });
 
@@ -57,10 +62,11 @@ module.exports = async (html, options) => {
           cssSrc = `https:${src}`;
         }
         responses[src] = true;
-        promises.push(axios.get(cssSrc)
-          .then((response) => {
+        promises.push(
+          axios.get(cssSrc).then((response) => {
             responses[src] = response;
-          }));
+          })
+        );
       }
     } catch (err) {
       console.dir(err);
@@ -78,7 +84,9 @@ module.exports = async (html, options) => {
 
   /* main amp library */
   $('head script[src="https://cdn.ampproject.org/v0.js"]').remove();
-  $('head').prepend('<script async src="https://cdn.ampproject.org/v0.js"></script>');
+  $('head').prepend(
+    '<script async src="https://cdn.ampproject.org/v0.js"></script>'
+  );
 
   /* meta charset */
   $('head meta[charset="utf-8"]').remove();
@@ -92,7 +100,9 @@ module.exports = async (html, options) => {
       const trackingId = src.match(/\bUA-\d{4,10}-\d{1,4}\b/);
       if (trackingId) {
         $(element).remove();
-        $('head').prepend('<script async custom-element="amp-analytics"src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>');
+        $('head').prepend(
+          '<script async custom-element="amp-analytics"src="https://cdn.ampproject.org/v0/amp-analytics-0.1.js"></script>'
+        );
         $('body').append(`<amp-analytics type="googleanalytics">
           <script type="application/json">
             { "vars": {
@@ -110,20 +120,29 @@ module.exports = async (html, options) => {
       }
     }
     const scriptContent = $(element).html();
-    const htmlScriptContent = scriptContent.match(/function gtag\(\){dataLayer\.push\(arguments\);}/);
+    const htmlScriptContent = scriptContent.match(
+      /function gtag\(\){dataLayer\.push\(arguments\);}/
+    );
     if (scriptContent && htmlScriptContent) {
       $(element).remove();
     }
   });
 
   /* meta viewport */
-  if ($('head meta[content="width=device-width,minimum-scale=1,initial-scale=1"]').length === 0) {
-    $('head').append('<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">');
+  if (
+    $('head meta[content="width=device-width,minimum-scale=1,initial-scale=1"]')
+      .length === 0
+  ) {
+    $('head').append(
+      '<meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">'
+    );
   }
 
   /* style amp-boilerplate */
   if ($('head style[amp-boilerplate]').length === 0) {
-    $('head').append('<style amp-boilerplate="">body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate="">body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>');
+    $('head').append(
+      '<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>'
+    );
   }
 
   /* body */
@@ -186,7 +205,9 @@ module.exports = async (html, options) => {
   });
 
   /* youtube */
-  $('iframe[src*="http://www.youtube.com"],iframe[src*="https://www.youtube.com"],iframe[src*="http://youtu.be/"],iframe[src*="https://youtu.be/"]').each((index, element) => {
+  $(
+    'iframe[src*="http://www.youtube.com"],iframe[src*="https://www.youtube.com"],iframe[src*="http://youtu.be/"],iframe[src*="https://youtu.be/"]'
+  ).each((index, element) => {
     youtube = true;
     const src = $(element).attr('src');
     const width = $(element).attr('width');
@@ -203,7 +224,9 @@ module.exports = async (html, options) => {
   });
 
   if (youtube) {
-    $('head').prepend('<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js">');
+    $('head').prepend(
+      '<script async custom-element="amp-youtube" src="https://cdn.ampproject.org/v0/amp-youtube-0.1.js">'
+    );
   }
 
   /* amp tags */
